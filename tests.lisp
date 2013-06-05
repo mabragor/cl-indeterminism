@@ -26,4 +26,7 @@
 
 (test basic
       (is (equal '((:functions foo) (:variables baz bar))
-		 (find-undefs '(foo bar baz)))))
+		 (find-undefs '(foo bar baz))))
+      (is (equal '((:functions foo) (:variables))
+		 (let ((bar 1) (baz 2)) (declare (ignore bar baz)) (find-undefs '(foo bar baz))))))
+

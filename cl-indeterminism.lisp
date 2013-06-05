@@ -18,13 +18,14 @@
 				       (:variable :variables))
 				     undefs))))
 
-(defun find-undefs (form)
+(defmacro find-undefs (form)
   ;; TODO: variables and functions undefined w.r.t CURRENT lexenv, not NULL lexenv.
-  (let ((undefs (list (list :functions) (list :variables))))
-    (declare (special undefs))
-    (with-active-layers (find-undefined-references)
-      (walk-form form)
-      undefs)))
+  `(cl-curlex:with-current-lexenv
+       (let ((undefs (list (list :functions) (list :variables))))
+	 (declare (special undefs))
+	 (with-active-layers (find-undefined-references)
+	   (walk-form ,form :environment (make-walk-environment ,(intern "*LEXENV*")))
+	   undefs))))
 
 ;; TODO: macro that makes transformation of undefined variables and functions to something else easy.
 
