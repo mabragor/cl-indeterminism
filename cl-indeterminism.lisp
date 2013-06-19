@@ -11,7 +11,8 @@
 (def (layer e) find-undefined-references ()
   ())
 
-(def layered-method handle-undefined-reference :in find-undefined-references :around (type name)
+(def layered-method handle-undefined-reference :in find-undefined-references
+     :around (type name &key &allow-other-keys)
 	      (declare (special undefs))
 	      (push name (cdr (assoc (ecase type
 				       (:function :functions)
