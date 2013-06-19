@@ -18,9 +18,12 @@ Still, one can explicitly specify to find undefs with respect to top-level envir
         CL-USER> (let ((a 1)) (cl-indeterminism:find-undefs 'a :env :null))
         ((:FUNCTIONS) (:VARIABLES A))
 
-
 Uses profound HU.DWIM.WALKER system to do the heavy lifting of code walking
 and is, in fact, just a convenience wrapper around it.
+
+Note: if your implementation is not supported by HU.DWIM.WALKER or CL-CURLEX,
+then branch "without-curlex" is for you - there initial unsophisticated behaviour
+ of the system is fixed forever.
 
 TODO:
   - (done) find undefined variables with respect to current lexenv, not null lexenv
