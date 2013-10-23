@@ -13,5 +13,5 @@
 (defsystem :cl-indeterminism-tests
   :description "Tests for CL-INDETERMINISM."
   :licence "GPL"
-  :depends-on (:cl-indeterminism :eos)
+  :depends-on (:cl-indeterminism :fiveam)
   :components ((:file "tests")))

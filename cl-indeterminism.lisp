@@ -30,6 +30,40 @@
 		   (:null `(walk-form ,form)))
 	   undefs))))
 
-;; TODO: macro that makes transformation of undefined variables and functions to something else easy.
 
-(export '(find-undefs))
+(def (layer e) transform-undefined-references ()
+  ())
+
+(defparameter *variable-transformer* nil)
+(defparameter *function-transformer* nil)
+
+(define-condition transform-not-handled (condition) ())
+
+(defmacro fail-transform ()
+  `(signal 'transform-not-handled))
+
+(def layered-method handle-undefined-reference :in transform-undefined-references
+     :around (type name &rest args &key &allow-other-keys)
+     (handler-case (ecase type
+                     (:function (when *function-transformer*
+                                  (values (walk-form (funcall *function-transformer* (getf args :form))
+                                                     :parent (getf args :parent)
+                                                     :environment (getf args :environment))
+                                          t)))
+                     (:variable (when *variable-transformer*
+                                  (values (walk-form (funcall *variable-transformer* name)
+                                                     :parent (getf args :parent)
+                                                     :environment (getf args :environment))
+                                          t))))
+       (transform-not-handled () nil)))
+     
+(defmacro macroexpand-all-transforming-undefs (form &key (env :current))
+  `(cl-curlex:with-current-lexenv
+       (with-active-layers (transform-undefined-references)
+         ,(ecase env
+                 (:current `(unwalk-form (walk-form ,form :environment (make-walk-environment ,(intern "*LEXENV*")))))
+                 (:null `(unwalk-form (walk-form ,form)))))))
+
+(export '(find-undefs macroexpand-all-transforming-undefs
+          *variable-transformer* *function-transformer*
+          fail-transform))

@@ -10,7 +10,7 @@
 (in-package :cl-user)
 
 (defpackage :cl-indeterminism-tests
-  (:use :cl :cl-indeterminism :hu.dwim.walker :eos)
+  (:use :cl :cl-indeterminism :hu.dwim.walker :fiveam)
   (:export #:run-tests))
 
 (in-package :cl-indeterminism-tests)
@@ -20,8 +20,8 @@
 
 (defun run-tests ()
   (let ((results (run 'indeterminism)))
-    (eos:explain! results)
-    (unless (eos:results-status results)
+    (fiveam:explain! results)
+    (unless (fiveam:results-status results)
       (error "Tests failed."))))
 
 (test basic
@@ -32,4 +32,10 @@
       (is (equal '((:functions foo) (:variables baz bar))
 		 (let ((bar 1) (baz 2)) (declare (ignore bar baz)) (find-undefs '(foo bar baz) :env :null)))))
 
-
+(test transformation-on-the-fly
+  (is (equal '(:a 'b 'c)
+             (let ((*variable-transformer* (lambda (x) `(quote ,x)))
+                   (*function-transformer* (lambda (x) (if (keywordp (car x))
+                                                           (fail-transform)
+                                                           `(,(sb-int:keywordicate (car x)) ,@(cdr x))))))
+               (macroexpand-all-transforming-undefs '(a b c))))))
