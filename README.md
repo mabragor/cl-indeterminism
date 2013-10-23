@@ -30,4 +30,14 @@ TODO:
     - (done) allow to specify null lexenv
   - macro to manipulate undefined functions and variables conveniently
 
+BUGS:
+  - MACROLETs in the enclosing scope are not handled correctly
+
+        CL-USER> (macrolet ((bar (b) nil)) (cl-indeterminism:find-undefs '(bar a)))
+        ((:FUNCTIONS) (:VARIABLES A))
+
+    although it should see that variable A is not really there
+    (hence, it does not go into the body of BAR). This is due to the limitation of
+    CL-CURLEX, where only names of functions, variabes and macros are captured, not their
+    definitions.
 
