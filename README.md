@@ -41,7 +41,7 @@ Transforming
 ------------
 
 Codewalk the form and transform undefined variables and functions in it on the fly to something else.
-Has a side effect of expanding all the macro in the form.
+Has a side effect of expanding all the macros in the form.
 
 ```lisp
 CL-USER> (ql:quickload 'cl-indeterminism)
@@ -63,31 +63,36 @@ The API consists of the following ingredients:
   - MACROEXPAND-ALL-TRANSFORMING-UNDEFS - macro, which actually does the transformation.
     Accepts optional keyword :ENV, which can be :NULL or :CURRENT (default) and acts the same as in FIND-UNDEFS.
   - \*VARIABLE-TRANSFORMER\* - NIL, or a reference to a function, which accepts variable name, and
-    returns arbitrary lisp form.
+    returns arbitrary lisp-form.
     This function is used to transform all undefined variables. If NIL, variables are left as-is, nothing happens.
-    The returned form is recursively walked, so all undefined variables and
+    If non-NIL, the returned form is recursively walked, so all undefined variables and
     function in it are also expanded. Beware of infinite recursions, use FAIL-TRANSFORM to prevent it!
   - \*FUNCTION-TRANSFORMER\* - analogous to \*VARIABLE-TRANSFORMER\*, only handles transformation of
     undefined functions. When NIL, undefined functions are left as-is.
     When non-NIL, expected to accept entire form on undefined function call and return arbitrary lisp-form.
     The returned form is recursively walked, so all undefined variables and
     function in it are also expanded. Beware of infinite recursions, use FAIL-TRANSFORM to prevent it!
-  - FAIL-TRANSFORM - a macro, which can be used inside functions, contained in \*VARIABLE-TRANSFORMER\* and
-    \*FUNCTION-TRANSFORMER\*. When invoked, causes transformation not to be performed, that is function/variable is left
+  - FAIL-TRANSFORM - a macro, which can be used inside functions, to which \*VARIABLE-TRANSFORMER\* and
+    \*FUNCTION-TRANSFORMER\* are bound.
+    When invoked, causes transformation not to be performed, that is undefined variable/function call is left
     as-is. Useful to prevent infinite recursions, as in example above, when transformation on
     unknown function is not performed if its name is already a keyword.
 
 I personally plan to use all this machinery in my fork of ESRAP packrat parser (https://github.com/mabragor/esrap).
 There, the idea is to transform all undefined variable names inside DEFRULE macro into calls to functions,
 which try to continue parsing with help of a rule, corresponding to the name of undefined variable.
-Hence, see branch 'liquid' there for examples of usage of MACROEXPAND-ALL-TRANSFORMING-UNDEFS.
+See branch 'liquid' there for examples of usage of MACROEXPAND-ALL-TRANSFORMING-UNDEFS.
 
 TODO:
+-----
+
   - (done) find undefined variables with respect to current lexenv, not null lexenv
     - (done) allow to specify null lexenv
   - (done) macro to manipulate undefined functions and variables conveniently
 
 BUGS:
+-----
+
   - MACROLETs in the enclosing scope are not handled correctly
 
         CL-USER> (macrolet ((bar (b) nil)) (cl-indeterminism:find-undefs '(bar a)))
