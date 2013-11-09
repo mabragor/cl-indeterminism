@@ -6,7 +6,7 @@
   :description "Find and/or manipulate undefined variables and functions in the form."
   :author "Alexander Popolitov <popolit@gmail.com>"
   :license "GPL"
-  :depends-on (#:hu.dwim.walker #:cl-curlex)
+  :depends-on (#:hu.dwim.walker #:cl-curlex #:defmacro-enhance)
   :components ((:file "cl-indeterminism")
 	       (:file "package")))
 

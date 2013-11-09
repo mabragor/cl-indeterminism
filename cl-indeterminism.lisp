@@ -57,12 +57,12 @@
                                           t))))
        (transform-not-handled () nil)))
      
-(defmacro macroexpand-all-transforming-undefs (form &key (env :current))
+(defmacro-enhance:defmacro! macroexpand-all-transforming-undefs (form &key (o!-env :current))
   `(cl-curlex:with-current-lexenv
        (with-active-layers (transform-undefined-references)
-         ,(ecase env
-                 (:current `(unwalk-form (walk-form ,form :environment (make-walk-environment ,(intern "*LEXENV*")))))
-                 (:null `(unwalk-form (walk-form ,form)))))))
+         (unwalk-form (walk-form ,form :environment (ecase ,o!-env
+                                                      (:current (make-walk-environment ,(intern "*LEXENV*")))
+                                                      (:null nil)))))))
 
 (export '(find-undefs macroexpand-all-transforming-undefs
           *variable-transformer* *function-transformer*
