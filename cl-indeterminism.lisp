@@ -60,10 +60,20 @@
 (defmacro-enhance:defmacro! macroexpand-all-transforming-undefs (form &key (o!-env :current))
   `(cl-curlex:with-current-lexenv
        (with-active-layers (transform-undefined-references)
-         (unwalk-form (walk-form ,form :environment (ecase ,o!-env
-                                                      (:current (make-walk-environment ,(intern "*LEXENV*")))
-                                                      (:null nil)))))))
+	 (unwalk-form (walk-form ,form
+				 :environment (ecase ,o!-env
+						(:current (make-walk-environment ,(intern "*LEXENV*")))
+						(:null nil)))))))
+
+(defun macroexpand-cc-all-transforming-undefs (form &key (env :cc-current))
+  (cl-curlex:with-current-cc-lexenv
+    (with-active-layers (transform-undefined-references)
+      (unwalk-form (walk-form form
+			      :environment (ecase env
+					     (:cc-current (make-walk-environment *lexenv*))
+					     (:null nil)))))))
 
 (export '(find-undefs macroexpand-all-transforming-undefs
+	  macroexpand-cc-all-transforming-undefs
           *variable-transformer* *function-transformer*
           fail-transform))

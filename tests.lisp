@@ -37,5 +37,27 @@
              (let ((*variable-transformer* (lambda (x) `(quote ,x)))
                    (*function-transformer* (lambda (x) (if (keywordp (car x))
                                                            (fail-transform)
-                                                           `(,(sb-int:keywordicate (car x)) ,@(cdr x))))))
+                                                           `(,(intern (string (car x)) "KEYWORD") ,@(cdr x))))))
                (macroexpand-all-transforming-undefs '(a b c))))))
+
+(test transformation-on-the-fly-nontriv-lexenv
+  (is (equal '(a b 'c) (let ((*variable-transformer* (lambda (x) `(quote ,x))))
+			 (let ((b 1))
+			   (macroexpand-all-transforming-undefs '(a b c)))))))
+			     
+
+(defmacro autoquoter (form)
+  (let ((*variable-transformer* (lambda (x) `(quote ,x))))
+    (macroexpand-cc-all-transforming-undefs form)))
+
+(defun autoquoter-1 ()
+  (autoquoter (list b c)))
+
+(defun autoquoter-2 ()
+  (let ((b 1))
+    (autoquoter (list b c))))
+
+
+(test cc-transformation-on-the-fly
+  (is (equal '(b c) (autoquoter-1)))
+  (is (equal '(1 c) (autoquoter-2))))
