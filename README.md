@@ -1,7 +1,12 @@
 cl-indeterminism
 ================
 
-Do some cool stuff with undefined functions and variables
+Do some cool stuff with undefined functions and variables.
+
+By now, 'cool stuff' includes:
+  - FIND-UNDEFS - described in section "Finding"
+  - MACROEXPAND-ALL-TRANSFORMING-UNDEFS - described in section "Transforming"
+  - MACROEXPAND-CC-ALL-TRANSFORMING-UNDEFS - described in section "Transforming at compile-time"
 
 Finding
 -------
@@ -82,6 +87,29 @@ I personally plan to use all this machinery in my fork of ESRAP packrat parser (
 There, the idea is to transform all undefined variable names inside DEFRULE macro into calls to functions,
 which try to continue parsing with help of a rule, corresponding to the name of undefined variable.
 See branch 'liquid' there for examples of usage of MACROEXPAND-ALL-TRANSFORMING-UNDEFS.
+
+Transforming at compile-time
+----------------------------
+
+Works similar to **transforming** at runtime, but is far more interesting, isn't it?
+
+```lisp
+CL-USER> (ql:quickload 'cl-indeterminism)
+CL-USER> (defmacro autoquote (form)
+           (let ((cl-indeterminism:*variable-transformer* (lambda (x) `(quote ,x))))
+             (cl-indeterminism:macroexpand-cc-all-transforming-undefs form)))
+;; So, our AUTOQUOTE macro automatically quotes all the undefined variables inside its form
+CL-USER> (defun foo ()
+           (autoquote (list b c)))
+CL-USER> (foo)
+(B C)
+;; And it takes into account lexical environment it is expanded in, so here B is not quoted
+CL-USER> (let ((b 1))
+           (defun foo ()
+             (autoquote (list b c))))
+CL-USER> (foo)
+(1 C)
+```
 
 TODO:
 -----
