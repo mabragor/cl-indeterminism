@@ -98,12 +98,14 @@ CL-USER> (ql:quickload 'cl-indeterminism)
 CL-USER> (defmacro autoquote (form)
            (let ((cl-indeterminism:*variable-transformer* (lambda (x) `(quote ,x))))
              (cl-indeterminism:macroexpand-cc-all-transforming-undefs form)))
-;; So, our AUTOQUOTE macro automatically quotes all the undefined variables inside its form
+;; So, our AUTOQUOTE macro automatically quotes
+;; all the undefined variables inside its form
 CL-USER> (defun foo ()
            (autoquote (list b c)))
 CL-USER> (foo)
 (B C)
-;; And it takes into account lexical environment it is expanded in, so here B is not quoted
+;; And it takes into account lexical environment
+;; it is expanded in, so here B is not quoted
 CL-USER> (let ((b 1))
            (defun foo ()
              (autoquote (list b c))))
