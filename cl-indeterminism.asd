@@ -2,11 +2,11 @@
 
 (asdf:defsystem #:cl-indeterminism
   :serial t
-  :version "0.1"
+  :version "0.2"
   :description "Find and/or manipulate undefined variables and functions in the form."
   :author "Alexander Popolitov <popolit@gmail.com>"
   :license "GPL"
-  :depends-on (#:hu.dwim.walker #:cl-curlex #:defmacro-enhance)
+  :depends-on (#:hu.dwim.walker #:cl-curlex #:defmacro-enhance #:alexandria)
   :components ((:file "cl-indeterminism")
 	       (:file "package")))
 

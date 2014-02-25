@@ -56,22 +56,36 @@
                                                      :environment (getf args :environment))
                                           t))))
        (transform-not-handled () nil)))
+
+(defmacro with-muffled-unknown-declaration-warns (&body body)
+  "KLUDGE to get rid of noize about SBCL's truly dynamic extent declaration"
+  `(handler-bind
+       ((alexandria:simple-style-warning
+	 (lambda (warning)
+	   (when (alexandria:starts-with-subseq
+	   	  "Ignoring unknown declaration"
+		  (simple-condition-format-control warning))
+	     (muffle-warning warning)))))
+     ,@body))
+
      
 (defmacro-enhance:defmacro! macroexpand-all-transforming-undefs (form &key (o!-env :current))
   `(cl-curlex:with-current-lexenv
        (with-active-layers (transform-undefined-references)
-	 (unwalk-form (walk-form ,form
-				 :environment (ecase ,o!-env
-						(:current (make-walk-environment ,(intern "*LEXENV*")))
-						(:null nil)))))))
+	 (with-muffled-unknown-declaration-warns
+	   (unwalk-form (walk-form ,form
+				   :environment (ecase ,o!-env
+						  (:current (make-walk-environment ,(intern "*LEXENV*")))
+						  (:null nil))))))))
 
 (defun macroexpand-cc-all-transforming-undefs (form &key (env :cc-current))
   (cl-curlex:with-current-cc-lexenv
     (with-active-layers (transform-undefined-references)
-      (unwalk-form (walk-form form
-			      :environment (ecase env
-					     (:cc-current (make-walk-environment *lexenv*))
-					     (:null nil)))))))
+      (with-muffled-unknown-declaration-warns
+	(unwalk-form (walk-form form
+				:environment (ecase env
+					       (:cc-current (make-walk-environment *lexenv*))
+					       (:null nil))))))))
 
 (export '(find-undefs macroexpand-all-transforming-undefs
 	  macroexpand-cc-all-transforming-undefs
