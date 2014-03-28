@@ -46,15 +46,15 @@
      :around (type name &rest args &key &allow-other-keys)
      (handler-case (ecase type
                      (:function (when *function-transformer*
-                                  (values (walk-form (funcall *function-transformer* (getf args :form))
-                                                     :parent (getf args :parent)
-                                                     :environment (getf args :environment))
-                                          t)))
+				  (values (walk-form (funcall *function-transformer* (getf args :form))
+						     :parent (getf args :parent)
+						     :environment (getf args :environment))
+					  t)))
                      (:variable (when *variable-transformer*
-                                  (values (walk-form (funcall *variable-transformer* name)
-                                                     :parent (getf args :parent)
-                                                     :environment (getf args :environment))
-                                          t))))
+				  (values (walk-form (funcall *variable-transformer* name)
+						     :parent (getf args :parent)
+						     :environment (getf args :environment))
+					  t))))
        (transform-not-handled () nil)))
      
 (defmacro-enhance:defmacro! macroexpand-all-transforming-undefs (form &key (o!-env :current))
@@ -65,13 +65,12 @@
 						(:current (make-walk-environment ,(intern "*LEXENV*")))
 						(:null nil)))))))
 
-(defun macroexpand-cc-all-transforming-undefs (form &key (env :cc-current))
-  (cl-curlex:with-current-cc-lexenv
-    (with-active-layers (transform-undefined-references)
-      (unwalk-form (walk-form form
-			      :environment (ecase env
-					     (:cc-current (make-walk-environment *lexenv*))
-					     (:null nil)))))))
+(defun macroexpand-cc-all-transforming-undefs (form &key env)
+  (with-active-layers (transform-undefined-references)
+    (unwalk-form (walk-form form
+			    :environment (if env
+					     (make-walk-environment env)
+					     nil)))))
 
 (export '(find-undefs macroexpand-all-transforming-undefs
 	  macroexpand-cc-all-transforming-undefs
