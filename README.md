@@ -125,7 +125,7 @@ TODO:
     - (done) allow to specify null lexenv
   - (done) macro to manipulate undefined functions and variables conveniently
 
-BUGS:
+BUGS & GOTCHAS:
 -----
 
   - MACROLETs in the enclosing scope are not handled correctly
@@ -137,4 +137,10 @@ BUGS:
     (hence, it does not go into the body of BAR). This is due to the limitation of
     CL-CURLEX, where only names of functions, variabes and macros are captured, not their
     definitions.
+  - HU.DWIM.WALKER, which is used in implementation of MACROEXPAND-ALL-TRANSFORMING-UNDEFS
+    and MACROEXPAND-CC-ALL-TRANSFORMING-UNDEFS does not know about some declarations,
+    specific to compilers, such as TRULY-DYNAMIC-EXTENT. This results in tons of style
+    warnings on standard output. So, for now I simply kludged to muffle those.
+    However, if you suspect that macroexpansion is done wrong, you maybe should
+    enable those warnings again, look for clues, and then maybe send a patch :)
 
