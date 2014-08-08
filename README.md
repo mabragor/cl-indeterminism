@@ -95,9 +95,9 @@ Works similar to **transforming** at runtime, but is far more interesting, isn't
 
 ```lisp
 CL-USER> (ql:quickload 'cl-indeterminism)
-CL-USER> (defmacro autoquote (form)
+CL-USER> (defmacro autoquote (form &environment env)
            (let ((cl-indeterminism:*variable-transformer* (lambda (x) `(quote ,x))))
-             (cl-indeterminism:macroexpand-cc-all-transforming-undefs form)))
+             (cl-indeterminism:macroexpand-cc-all-transforming-undefs form :env env)))
 ;; So, our AUTOQUOTE macro automatically quotes
 ;; all the undefined variables inside its form
 CL-USER> (defun foo ()
@@ -112,6 +112,11 @@ CL-USER> (let ((b 1))
 CL-USER> (foo)
 (1 C)
 ```
+
+Note, that lexical environment has to be explicitly fetched with help of &ENVIRONMENT keyword
+of the enclosing macro and passed to MACROEXPAND-CC-ALL-TRANSFORMING-UNDEFS.
+This is due to my failure to fetch this compile environment in some implementations
+with some other tricks.
 
 TODO:
 -----
