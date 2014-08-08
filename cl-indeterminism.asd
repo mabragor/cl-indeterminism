@@ -2,7 +2,7 @@
 
 (asdf:defsystem #:cl-indeterminism
   :serial t
-  :version "0.2"
+  :version "0.3"
   :description "Find and/or manipulate undefined variables and functions in the form."
   :author "Alexander Popolitov <popolit@gmail.com>"
   :license "GPL"

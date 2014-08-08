@@ -24,6 +24,10 @@
     (unless (fiveam:results-status results)
       (error "Tests failed."))))
 
+(defmacro list-the-undefs (&body body &environment env)
+  `(list ,@(mapcar (lambda (x) `(quote ,x))
+		   (find-undefs `(progn ,@body) :env env))))
+
 (test basic
       (is (equal '((:functions foo) (:variables baz bar))
 		 (find-undefs '(foo bar baz))))
@@ -31,6 +35,13 @@
 		 (let ((bar 1) (baz 2)) (declare (ignore bar baz)) (find-undefs '(foo bar baz)))))
       (is (equal '((:functions foo) (:variables baz bar))
 		 (let ((bar 1) (baz 2)) (declare (ignore bar baz)) (find-undefs '(foo bar baz) :env :null)))))
+
+(test macro-basic
+  (is (equal '((:functions foo) (:variables baz bar))
+	     (list-the-undefs (foo bar baz))))
+  (is (equal '((:functions foo) (:variables))
+	     (let ((bar 1) (baz 2)) (declare (ignore bar baz)) (list-the-undefs (foo bar baz))))))
+
 
 (test transformation-on-the-fly
   (is (equal '(:a 'b 'c)

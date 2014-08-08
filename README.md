@@ -34,6 +34,17 @@ CL-USER> (let ((a 1)) (cl-indeterminism:find-undefs 'a :env :null))
 ((:FUNCTIONS) (:VARIABLES A))
 ```
 
+Can be also used to find list of undefined variables at compile time
+
+```lisp
+(defmacro list-the-undefs (&body body &environment env)
+  `(list ,@(mapcar (lambda (x) `(quote ,x))
+		   (find-undefs `(progn ,@body) :env env))))
+(let ((bar 1)) (declare (ignore bar)) (find-undefs '(foo bar baz)))
+((:FUNCTIONS FOO) (:VARIABLES BAZ))
+```
+
+
 Uses profound HU.DWIM.WALKER system to do the heavy lifting of code walking
 and is, in fact, just a convenience wrapper around it.
 

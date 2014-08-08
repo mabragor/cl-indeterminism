@@ -25,9 +25,10 @@
        (let ((undefs (list (list :functions) (list :variables))))
 	 (declare (special undefs))
 	 (with-active-layers (find-undefined-references)
-	   ,(ecase env
-		   (:current `(walk-form ,form :environment (make-walk-environment ,(intern "*LEXENV*"))))
-		   (:null `(walk-form ,form)))
+	   ,(case env
+		  (:current `(walk-form ,form :environment (make-walk-environment ,(intern "*LEXENV*"))))
+		  (:null `(walk-form ,form))
+		  (t `(walk-form ,form :environment (make-walk-environment ,env))))
 	   undefs))))
 
 
