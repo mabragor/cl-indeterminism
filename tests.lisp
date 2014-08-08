@@ -46,9 +46,9 @@
 			   (macroexpand-all-transforming-undefs '(a b c)))))))
 			     
 
-(defmacro autoquoter (form)
+(defmacro autoquoter (form &environment env)
   (let ((*variable-transformer* (lambda (x) `(quote ,x))))
-    (macroexpand-cc-all-transforming-undefs form)))
+    (macroexpand-cc-all-transforming-undefs form :env env)))
 
 (defun autoquoter-1 ()
   (autoquoter (list b c)))

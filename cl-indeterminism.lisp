@@ -69,14 +69,16 @@
      ,@body))
 
      
-(defmacro-enhance:defmacro! macroexpand-all-transforming-undefs (form &key (o!-env :current))
-  `(cl-curlex:with-current-lexenv
-       (with-active-layers (transform-undefined-references)
-	 (with-muffled-unknown-declaration-warns
-	   (unwalk-form (walk-form ,form
-				   :environment (ecase ,o!-env
-						  (:current (make-walk-environment ,(intern "*LEXENV*")))
-						  (:null nil))))))))
+(defmacro macroexpand-all-transforming-undefs (form &key (o!-env :current))
+  (let ((g!-env (gensym "G!-ENV")))
+    `(let ((,g!-env ,o!-env))
+       (cl-curlex:with-current-lexenv
+	 (with-active-layers (transform-undefined-references)
+	   (with-muffled-unknown-declaration-warns
+	       (unwalk-form (walk-form ,form
+				       :environment (ecase ,g!-env
+						      (:current (make-walk-environment ,(intern "*LEXENV*")))
+						      (:null nil))))))))))
 
 (defun macroexpand-cc-all-transforming-undefs (form &key env)
   (with-active-layers (transform-undefined-references)
