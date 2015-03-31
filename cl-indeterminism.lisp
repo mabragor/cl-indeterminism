@@ -83,10 +83,11 @@
 
 (defun macroexpand-cc-all-transforming-undefs (form &key env)
   (with-active-layers (transform-undefined-references)
-    (unwalk-form (walk-form form
-			    :environment (if env
-					     (make-walk-environment env)
-					     nil)))))
+    (with-muffled-unknown-declaration-warns
+      (unwalk-form (walk-form form
+			      :environment (if env
+					       (make-walk-environment env)
+					       nil))))))
 
 (export '(find-undefs macroexpand-all-transforming-undefs
 	  macroexpand-cc-all-transforming-undefs
